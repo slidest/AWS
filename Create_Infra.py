@@ -32,6 +32,8 @@ igw_id = 'igw-e6ea2e8f'
 bucket_name = 'jstmybucket'
 route_table_private_name = 'Private'
 route_table_public_name = 'Public'
+
+route_tables_name = [route_table_private_name, route_table_public_name]
 # Tags
 environement = 'Dev'
 app = 'WebSite'
@@ -48,7 +50,6 @@ subnet1_az = region + "a"
 subnet2_az = region + "b"
 subnet3_az = region + "a"
 subnet4_az = region + "b"
-
 
 subnets_name = [subnet1_name, subnet2_name, subnet3_name, subnet4_name]
 subnets_cidr = [subnet1_cidr, subnet2_cidr, subnet3_cidr, subnet4_cidr]
@@ -81,9 +82,9 @@ def list_routetable_by_tag_value(tagkey, tagvalue):
 # Find Subnets by attribute value
 def list_subnet_by_attribute_value(attribute, value):
     """
-        When passed a tag key, tag value this will return a list of SubnetIds that were found.
-        :param tagkey:str
-        :param tagvalue:str
+        When passed a attribute key, attribute value this will return a list of SubnetIds that were found.
+        :param attribute:str
+        :param value:str
         :return: list
     """
     response = ec2_cli.describe_subnets(Filters=[
@@ -107,7 +108,7 @@ def list_subnet_by_attribute_value(attribute, value):
 # Test if a route table with Tag Name = route_table_private_name
 test = list_routetable_by_tag_value("Name", route_table_private_name)
 # If there is no route table in test, we create teh route table
-if test == []:
+if test is []:
     route_table_private = ec2_res.create_route_table(
           DryRun=dryrun,
           VpcId=vpc_id
@@ -138,7 +139,7 @@ else:
 # Test if a route table with Tag Name = route_table_public_name
 test = list_routetable_by_tag_value("Name", route_table_public_name)
 # If there is no route table in test, we create teh route table
-if test == []:
+if test is []:
     route_table_public = ec2_res.create_route_table(
           DryRun=dryrun,
           VpcId=vpc_id
@@ -173,8 +174,6 @@ if test == []:
 else:
     print "The %s Route Table already exists with Id %s!" % (route_table_public_name, test)
 
-
-
 # ***********************
 # *   CREATE SUBNETS    *
 # ***********************
@@ -184,7 +183,7 @@ while i < len(subnets_name):
     # Test if a Subnet with CidrBlock  = subnets_cidr[i]
     test = list_subnet_by_attribute_value('cidr', subnets_cidr[i])
     # If there is no S-subnet in test, we create the subnet
-    if test == []:
+    if test is []:
         subnet = ec2_res.create_subnet(
             DryRun=dryrun,
             VpcId=vpc_id,
@@ -219,4 +218,3 @@ while i < len(subnets_name):
 # Create bucket
 
 # s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
-
